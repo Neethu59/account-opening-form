@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Form, Container, Row, Col, Button } from 'react-bootstrap';
+import axios from 'axios'
 import './Home.css';
+import { useNavigate } from 'react-router-dom';
+import Formdata from '../Component/Formdata';
 
 export default function Home() {
+
   const [state, setState] = useState({
     holdername: '',
     accountnumber: '',
@@ -20,6 +24,7 @@ export default function Home() {
     },
     
   });
+  const navigate=useNavigate()
 
   const handleInputChange = (e) => {
     const { name, value, type,checked } = e.target;
@@ -50,19 +55,52 @@ export default function Home() {
       }));
     }
   console.log(state);}
-  const handleFileChange = (e, fieldName) => {
-    const file = e.target.files[0];
-    setState((prevState) => ({
-      ...prevState,
-      documents: {
-        ...prevState.documents,
-        [fieldName]: file,
-      },
-    }));
-  };
 
-const handleSubmit=()=>{
+
+//   const handleFileChange = (e, fieldName) => {
+
+//     const file = e.target.files[0];
+// const formData=new FormData()
+// formData.append('image',file)
+// axios.post("http://localhost:6000/upload").then(res=>{
+//   console.log(res);
+// })
+    
+//     setState((prevState) => ({
+//       ...prevState,
+//       documents: {
+//         ...prevState.documents,
+//         [fieldName]: file,
+//       },
+//     }));
+//   };
+const handleFileChange = async (e, fieldName) => {
+  const file = e.target.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+      const response = await axios.post("http://localhost:6000/upload", formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+          }
+      });
+      console.log(response);
+  } catch (error) {
+      console.error('Error uploading file:', error);
+  }
+};
+const handleSubmit=(e)=>{
   console.log(state);
+e.preventDefault()
+// axios.post("http://localhost:6000/createaccount",state).then(res=>{
+//   console.log(res);
+// })
+
+}
+
+const handlenext=()=>{
+  navigate('/next')
 }
 
   return (
@@ -74,22 +112,23 @@ const handleSubmit=()=>{
             <Form className="mt-3">
               <Form.Group className="mb-3" >
                 <Form.Label className="formlabel">ACCOUNT HOLDER NAME</Form.Label>
-                <Form.Control type="text" placeholder="" name="holdername" value={state.holdername} onChange={handleInputChange} />
+                <Form.Control type="text" placeholder="" name="holdername" value={state.holdername} required  onChange={handleInputChange} />
               </Form.Group>
-
+              
+              {/* <Formdata formlabel="ACCOUNT HOLDER NAME" /> */}
               <Form.Group className="mb-3">
                 <Form.Label className="formlabel">ACCOUNT NUMBER</Form.Label>
-                <Form.Control type="number" placeholder="" name="accountnumber" value={state.accountnumber} onChange={handleInputChange} />
+                <Form.Control type="number" placeholder="" name="accountnumber" value={state.accountnumber} required onChange={handleInputChange} />
               </Form.Group>
 
               <Form.Group className="mb-3" >
                 <Form.Label className="formlabel">DATE OF BIRTH</Form.Label>
-                <Form.Control type="date" placeholder="" name="dob" value={state.dob} onChange={handleInputChange} />
+                <Form.Control type="date" placeholder="" name="dob" value={state.dob} required onChange={handleInputChange} />
               </Form.Group>
 
               <Form.Group className="mb-3" >
                 <Form.Label className="formlabel">IDENTIFICATION TYPE</Form.Label>
-                <Form.Control as="select" value={state.identificationType} onChange={handleInputChange} name="identificationType">
+                <Form.Control as="select" value={state.identificationType} onChange={handleInputChange} name="identificationType"required>
                   <option value="">Select Identification Type</option>
                   <option value="aadhar">Aadhar</option>
                   <option value="voterid">Voter ID</option>
@@ -107,7 +146,7 @@ const handleSubmit=()=>{
             name="gender"
             value="male"
             checked={state.gender === 'male'}
-            onChange={handleInputChange}
+            onChange={handleInputChange} required
           />
           <Form.Check
             inline
@@ -116,7 +155,7 @@ const handleSubmit=()=>{
             name="gender"
             value="female"
             checked={state.gender === 'female'}
-            onChange={handleInputChange}
+            onChange={handleInputChange} required
           />
           <Form.Check
             inline
@@ -125,7 +164,7 @@ const handleSubmit=()=>{
             name="gender"
             value="other"
             checked={state.gender === 'other'}
-            onChange={handleInputChange}
+            onChange={handleInputChange} required
           />
         </div>
       </Form.Group>
@@ -143,14 +182,15 @@ const handleSubmit=()=>{
                 <Form.Label className="formlabel">Document Submission Types</Form.Label>
                 <div>
                   <Form.Label htmlFor="photo" className="form-label">Photo</Form.Label>
-                  <Form.Control type="file" name="photo" id="photo" onChange={(e) => handleFileChange(e, 'photo')} />
-                  <Form.Label htmlFor="idproof" className="form-label">ID Proof</Form.Label>
-                  <Form.Control type="file" id="idproof" onChange={(e) => handleFileChange(e, 'idproof')} />
-                </div>
+                  <Form.Control type="file" name="image" id="photo" onChange={(e) => handleFileChange(e, 'image')} required/>
+                 </div>
               </Form.Group>
             </Form>
             <Button className="mb-3" variant="success"onClick={handleSubmit}>
               SUBMIT
+            </Button>{' '}
+            <Button className="mb-3" variant="success"onClick={handlenext}>
+              NEXT
             </Button>{' '}
           </Col>
         </Row>
