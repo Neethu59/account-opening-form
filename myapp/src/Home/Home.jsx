@@ -19,8 +19,7 @@ export default function Home() {
       onlinebanking: false,
     },
     documents: {
-      photo: null,
-      idproof: null,
+     image:""
     },
     
   });
@@ -57,45 +56,47 @@ export default function Home() {
   console.log(state);}
 
 
-//   const handleFileChange = (e, fieldName) => {
 
-//     const file = e.target.files[0];
-// const formData=new FormData()
-// formData.append('image',file)
-// axios.post("http://localhost:6000/upload").then(res=>{
-//   console.log(res);
-// })
-    
-//     setState((prevState) => ({
-//       ...prevState,
-//       documents: {
-//         ...prevState.documents,
-//         [fieldName]: file,
-//       },
-//     }));
-//   };
-const handleFileChange = async (e, fieldName) => {
-  const file = e.target.files[0];
-  const formData = new FormData();
-  formData.append('image', file);
 
+
+const handleFileChange=async(e,fieldName)=>{
+console.log("fieldname",fieldName);
+const formdata=new FormData();
+for(let index=0;index<fieldName.length;index++){
+ const file=e.target.files[index]
+ console.log("file",file);
+  formdata.append("image",file)
+  setState((prevState) => ({
+    ...prevState,
+    documents: {
+      ...prevState.documents,
+      image: [...prevState.documents.image, file] 
+    }
+  }));
+}
+
+postfiles(formdata)
+}
+const postfiles=async(formdata)=>{
+  console.log(formdata);
   try {
-      const response = await axios.post("http://localhost:6000/upload", formData, {
-          headers: {
-              'Content-Type': 'multipart/form-data'
-          }
-      });
-      console.log(response);
-  } catch (error) {
-      console.error('Error uploading file:', error);
-  }
-};
+          const response = await axios.post("http://localhost:4000/upload", formdata, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+          console.log(response);
+      } catch (error) {
+          console.error('Error uploading file:', error);
+      }
+}
+
 const handleSubmit=(e)=>{
   console.log(state);
 e.preventDefault()
-// axios.post("http://localhost:6000/createaccount",state).then(res=>{
-//   console.log(res);
-// })
+axios.post("http://localhost:4000/createaccount",state).then(res=>{
+  console.log(res);
+})
 
 }
 
@@ -181,8 +182,11 @@ const handlenext=()=>{
               <Form.Group className="mb-3">
                 <Form.Label className="formlabel">Document Submission Types</Form.Label>
                 <div>
-                  <Form.Label htmlFor="photo" className="form-label">Photo</Form.Label>
-                  <Form.Control type="file" name="image" id="photo" onChange={(e) => handleFileChange(e, 'image')} required/>
+                  
+                  <div><Form.Label htmlFor="photo" className="form-label">1.photo</Form.Label>
+                  </div><Form.Label htmlFor="photo" className="form-label">2.Id proof</Form.Label>
+                  <Form.Control type="file" name="idproof" id="idproof"multiple onChange={(e) => handleFileChange(e, 'image')} required/>
+                 
                  </div>
               </Form.Group>
             </Form>

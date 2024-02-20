@@ -7,7 +7,7 @@ const multer  = require('multer')
 // const upload = multer({ dest: 'uploads/' })
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '\Images')
+      cb(null, 'Images')
     },
     filename: function (req, file, cb) {
         console.log(file);
@@ -24,11 +24,21 @@ app.use(cors())
 app.get("/upload",(req,res)=>{
     res.render("upload")
   })
-app.post('/upload', upload.single('image'),(req, res)=> {
-    res.send('Uploaded successfully')
-     // req.file is the `avatar` file
-     // req.body will hold the text fields, if there were any
-   })
+
+app.post('/upload', upload.array('image'), (req, res) => {
+  try {
+    const files = req.files;
+    if (Array.isArray(files) && files.length > 0) {
+      return res.json({ success: true, files });
+    } else {
+      throw new Error("File upload unsuccessful");
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.use('/',router)
-const port=6000
+const port=4000
 app.listen(port,()=>console.log(`${port}`))
